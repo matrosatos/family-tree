@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Семейное древо</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Семейное древо</h1>
+    </header>
+    <main>
+        <section id="tree">
+            <h2>Мое семейное дерево</h2>
+            <div id="family-tree"></div>
+        </section>
+
+        <section id="add-relative">
+            <h2>Добавить родственника</h2>
+            <form id="add-relative-form">
+                <label for="name">Имя:</label>
+                <input type="text" id="name" required>
+
+                <label for="relationship">Отношение:</label>
+                <input type="text" id="relationship" required>
+
+                <button type="submit">Добавить</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
