@@ -1,48 +1,33 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Семейное древо</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Семейное древо</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1>Семейное древо</h1>
-    </header>
-    <main>
-        <section id="tree">
-            <h2>Мое семейное дерево</h2>
-            <div id="family-tree"></div>
-        </section>
+  <header>
+    <h1>Семейное древо</h1>
+  </header>
 
-        <section id="add-relative">
-            <h2>Добавить родственника</h2>
-            <form id="add-relative-form">
+  <main>
+    <div id="tree-container"></div>
 
-                <label for="surname">Фамилия:</label>
-                <input type="text" id="surname" required>
+    <section id="add-form">
+      <h2>Добавить родственника</h2>
+      <form id="relative-form">
+        <input type="text" id="surname" placeholder="Фамилия" required />
+        <input type="text" id="name" placeholder="Имя" required />
+        <input type="text" id="patronymic" placeholder="Отчество" required />
+        <input type="date" id="dob" placeholder="Дата рождения" required />
+        <input type="date" id="dod" placeholder="Дата смерти (необязательно)" />
+        <input type="file" id="photo" />
+        <button type="submit">Добавить</button>
+      </form>
+    </section>
+  </main>
 
-                <label for="name">Имя:</label>
-                <input type="text" id="name" required>
-
-                <label for="patronymic">Отчество:</label>
-                <input type="text" id="patronymic" required>
-
-                <label for="dob">Дата рождения:</label>
-                <input type="date" id="dob" required>
-
-                <label for="dod">Дата смерти (если есть):</label>
-                <input type="date" id="dod">
-
-                <label for="photo">Фото:</label>
-                <input type="file" id="photo">
-
-                <button type="submit">Добавить</button>
-            </form>
-        </section>
-    </main>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

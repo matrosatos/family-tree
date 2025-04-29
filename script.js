@@ -1,89 +1,104 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("add-relative-form");
-    const nameInput = document.getElementById("name");
-    const surnameInput = document.getElementById("surname");
-    const patronymicInput = document.getElementById("patronymic");
-    const dobInput = document.getElementById("dob");
-    const dodInput = document.getElementById("dod");
-    const photoInput = document.getElementById("photo");
-    const familyTreeContainer = document.getElementById("family-tree");
+const form = document.getElementById("relative-form");
+const treeContainer = document.getElementById("tree-container");
 
-    // Функция для отображения дерева
-    function renderFamilyTree() {
-        familyTreeContainer.innerHTML = '';
+function getRelatives() {
+  return JSON.parse(localStorage.getItem("relatives") || "[]");
+}
 
-        const familyData = JSON.parse(localStorage.getItem("familyData")) || [];
+function saveRelatives(data) {
+  localStorage.setItem("relatives", JSON.stringify(data));
+}
 
-        familyData.forEach(function(relative) {
-            const relativeDiv = document.createElement("div");
-            relativeDiv.classList.add("relative");
+function createCard(relative, index) {
+  const div = document.createElement("div");
+  div.className = "card";
 
-            // Если у родственника есть фото, показываем его
-            if (relative.photo) {
-                const img = document.createElement("img");
-                img.src = relative.photo;
-                relativeDiv.appendChild(img);
-            }
+  if (relative.photo) {
+    const img = document.createElement("img");
+    img.src = relative.photo;
+    div.appendChild(img);
+  }
 
-            const name = document.createElement("h3");
-            name.textContent = `${relative.surname} ${relative.name} ${relative.patronymic}`;
-            relativeDiv.appendChild(name);
+  const name = document.createElement("p");
+  name.innerHTML = `<strong>${relative.surname} ${relative.name} ${relative.patronymic}</strong>`;
+  div.appendChild(name);
 
-            const dob = document.createElement("p");
-            dob.textContent = `Дата рождения: ${relative.dob}`;
-            relativeDiv.appendChild(dob);
+  const dob = document.createElement("p");
+  dob.textContent = `Дата рождения: ${relative.dob}`;
+  div.appendChild(dob);
 
-            // Если есть дата смерти, показываем её
-            if (relative.dod) {
-                const dod = document.createElement("p");
-                dod.textContent = `Дата смерти: ${relative.dod}`;
-                relativeDiv.appendChild(dod);
-            }
+  if (relative.dod) {
+    const dod = document.createElement("p");
+    dod.textContent = `Дата смерти: ${relative.dod}`;
+    div.appendChild(dod);
+  }
 
-            familyTreeContainer.appendChild(relativeDiv);
-        });
+  const delBtn = document.createElement("button");
+  delBtn.textContent = "Удалить";
+  delBtn.onclick = () => {
+    const data = getRelatives();
+    data.splice(index, 1);
+    saveRelatives(data);
+    renderTree();
+  };
+  div.appendChild(delBtn);
+
+  return div;
+}
+
+function renderTree() {
+  const data = getRelatives();
+  treeContainer.innerHTML = "";
+
+  const levels = [[], [], [], [], []]; // 5 уровней (можно увеличить)
+
+  data.forEach((rel, i) => {
+    const level = rel.level || 0;
+    levels[level].push(createCard(rel, i));
+  });
+
+  levels.forEach(levelCards => {
+    if (levelCards.length > 0) {
+      const levelDiv = document.createElement("div");
+      levelDiv.className = "tree-level";
+      levelCards.forEach(card => levelDiv.appendChild(card));
+      treeContainer.appendChild(levelDiv);
     }
+  });
+}
 
-    // Функция для добавления родственника
-    function addRelative(event) {
-        event.preventDefault();
+form.addEventListener("submit", async e => {
+  e.preventDefault();
 
-        const name = nameInput.value.trim();
-        const surname = surnameInput.value.trim();
-        const patronymic = patronymicInput.value.trim();
-        const dob = dobInput.value;
-        const dod = dodInput.value;
-        const photo = photoInput.files[0];
+  const surname = document.getElementById("surname").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const patronymic = document.getElementById("patronymic").value.trim();
+  const dob = document.getElementById("dob").value;
+  const dod = document.getElementById("dod").value;
+  const photoFile = document.getElementById("photo").files[0];
 
-        if (name && surname && patronymic && dob) {
-            const familyData = JSON.parse(localStorage.getItem("familyData")) || [];
+  let photoUrl = null;
 
-            const relative = {
-                name,
-                surname,
-                patronymic,
-                dob,
-                dod: dod || null,
-                photo: photo ? URL.createObjectURL(photo) : null
-            };
+  if (photoFile) {
+    photoUrl = await readFile(photoFile);
+  }
 
-            familyData.push(relative);
-            localStorage.setItem("familyData", JSON.stringify(familyData));
+  const relatives = getRelatives();
+  const level = Math.floor(relatives.length / 2); // простое определение уровня
+  relatives.push({ surname, name, patronymic, dob, dod: dod || null, photo: photoUrl, level });
 
-            renderFamilyTree();
-
-            // Очищаем форму
-            nameInput.value = '';
-            surnameInput.value = '';
-            patronymicInput.value = '';
-            dobInput.value = '';
-            dodInput.value = '';
-            photoInput.value = '';
-        }
-    }
-
-    form.addEventListener("submit", addRelative);
-
-    // Инициализация дерева на загрузке страницы
-    renderFamilyTree();
+  saveRelatives(relatives);
+  renderTree();
+  form.reset();
 });
+
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+renderTree();
