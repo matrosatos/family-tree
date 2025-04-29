@@ -1,53 +1,87 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Ссылка на форму и на контейнер для отображения родственников
     const form = document.getElementById("add-relative-form");
     const nameInput = document.getElementById("name");
-    const relationshipInput = document.getElementById("relationship");
+    const surnameInput = document.getElementById("surname");
+    const patronymicInput = document.getElementById("patronymic");
+    const dobInput = document.getElementById("dob");
+    const dodInput = document.getElementById("dod");
+    const photoInput = document.getElementById("photo");
     const familyTreeContainer = document.getElementById("family-tree");
 
     // Функция для отображения дерева
     function renderFamilyTree() {
-        // Очистим текущий список
         familyTreeContainer.innerHTML = '';
 
-        // Получаем данные из LocalStorage
         const familyData = JSON.parse(localStorage.getItem("familyData")) || [];
 
-        // Отображаем каждого родственника
         familyData.forEach(function(relative) {
-            const newRelative = document.createElement("li");
-            newRelative.textContent = `${relative.name} (${relative.relationship})`;
-            familyTreeContainer.appendChild(newRelative);
+            const relativeDiv = document.createElement("div");
+            relativeDiv.classList.add("relative");
+
+            // Если у родственника есть фото, показываем его
+            if (relative.photo) {
+                const img = document.createElement("img");
+                img.src = relative.photo;
+                relativeDiv.appendChild(img);
+            }
+
+            const name = document.createElement("h3");
+            name.textContent = `${relative.surname} ${relative.name} ${relative.patronymic}`;
+            relativeDiv.appendChild(name);
+
+            const dob = document.createElement("p");
+            dob.textContent = `Дата рождения: ${relative.dob}`;
+            relativeDiv.appendChild(dob);
+
+            // Если есть дата смерти, показываем её
+            if (relative.dod) {
+                const dod = document.createElement("p");
+                dod.textContent = `Дата смерти: ${relative.dod}`;
+                relativeDiv.appendChild(dod);
+            }
+
+            familyTreeContainer.appendChild(relativeDiv);
         });
     }
 
     // Функция для добавления родственника
     function addRelative(event) {
-        event.preventDefault(); // Отменяем стандартное поведение формы
+        event.preventDefault();
 
         const name = nameInput.value.trim();
-        const relationship = relationshipInput.value.trim();
+        const surname = surnameInput.value.trim();
+        const patronymic = patronymicInput.value.trim();
+        const dob = dobInput.value;
+        const dod = dodInput.value;
+        const photo = photoInput.files[0];
 
-        if (name && relationship) {
-            // Получаем текущие данные из LocalStorage
+        if (name && surname && patronymic && dob) {
             const familyData = JSON.parse(localStorage.getItem("familyData")) || [];
 
-            // Добавляем нового родственника
-            familyData.push({ name: name, relationship: relationship });
+            const relative = {
+                name,
+                surname,
+                patronymic,
+                dob,
+                dod: dod || null,
+                photo: photo ? URL.createObjectURL(photo) : null
+            };
 
-            // Сохраняем обновленные данные в LocalStorage
+            familyData.push(relative);
             localStorage.setItem("familyData", JSON.stringify(familyData));
 
-            // Обновляем отображение дерева
             renderFamilyTree();
 
             // Очищаем форму
             nameInput.value = '';
-            relationshipInput.value = '';
+            surnameInput.value = '';
+            patronymicInput.value = '';
+            dobInput.value = '';
+            dodInput.value = '';
+            photoInput.value = '';
         }
     }
 
-    // Добавляем обработчик события на форму
     form.addEventListener("submit", addRelative);
 
     // Инициализация дерева на загрузке страницы
